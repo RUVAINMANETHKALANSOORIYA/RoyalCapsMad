@@ -37,7 +37,8 @@ class _ProductScreenState extends State<ProductScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Products'),
-        backgroundColor: Colors.black,
+        centerTitle: true,
+        backgroundColor: Colors.green.shade300,
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())

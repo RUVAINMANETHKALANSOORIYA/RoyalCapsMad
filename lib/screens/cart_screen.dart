@@ -22,7 +22,10 @@ class _CartScreenState extends State<CartScreen> {
     double subtotal = calculateSubtotal();
 
     return Scaffold(
-      appBar: AppBar(title: Text('Cart')),
+      appBar: AppBar(title: Text('Cart'),
+      backgroundColor: Colors.green.shade300,
+      centerTitle: true,
+      ),
       body: CartScreen.cartItems.isEmpty
           ? Center(child: Text('Your cart is empty!'))
           : Column(

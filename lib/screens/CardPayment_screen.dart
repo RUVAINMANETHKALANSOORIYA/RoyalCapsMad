@@ -10,6 +10,7 @@ class CardPaymentScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Card Payment'),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

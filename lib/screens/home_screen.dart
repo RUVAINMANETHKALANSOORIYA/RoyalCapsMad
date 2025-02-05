@@ -13,6 +13,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String? _authToken;
   int _selectedIndex = 0; // Default selected index
+  bool isDarkMode = false; // Track theme mode
 
   final List<Widget> _pages = [
     HomeContentScreen(),
@@ -27,7 +28,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadToken();
   }
 
-  /// ✅ Load Token from SharedPreferences
   Future<void> _loadToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -35,7 +35,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  /// ✅ Logout and remove token
   Future<void> _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token'); // ✅ Delete token
@@ -59,44 +58,55 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  /// ✅ Check if user is logged in when clicking the user icon
-  void _onUserIconTapped() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('auth_token');
-
-    if (token == null || token.isEmpty) {
-      // If no token, go to login screen
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => LoginPage(toggleTheme: () {})),
-      );
-    } else {
-      // If logged in, go to profile screen
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => ProfileScreen()),
-      );
-    }
+  void toggleTheme() {
+    setState(() {
+      isDarkMode = !isDarkMode;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
       appBar: AppBar(
-        title: Text('Royal Caps', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.black,
+        title: Text(
+          'Royal Caps',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            fontStyle: FontStyle.italic, // Italicized text
+            fontFamily: 'Cinzel', // Use a luxury font (Make sure you add it in pubspec.yaml)
+            color: isDarkMode ? Colors.white : Colors.black,
+          ),
+        ),
+        backgroundColor: isDarkMode ? Colors.black : Colors.green.shade300,
+        elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.person),
+            icon: Icon(
+              isDarkMode ? Icons.wb_sunny : Icons.nights_stay,
+              color: isDarkMode ? Colors.white : Colors.black,
+            ),
+            onPressed: toggleTheme,
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.person,
+              color: isDarkMode ? Colors.white : Colors.black,
+            ),
             onPressed: _onUserIconTapped,
           ),
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: Icon(
+              Icons.logout,
+              color: isDarkMode ? Colors.white : Colors.black,
+            ),
             onPressed: _logout,
           ),
         ],
       ),
+
+      body: _pages[_selectedIndex],
+      backgroundColor: isDarkMode ? Colors.black : Colors.white,
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
@@ -107,88 +117,118 @@ class _HomeScreenState extends State<HomeScreen> {
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
+        backgroundColor: isDarkMode ? Colors.black : Colors.white,
         onTap: _onItemTapped,
       ),
     );
   }
+
+  void _onUserIconTapped() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+
+    if (token == null || token.isEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage(toggleTheme: toggleTheme)),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => ProfileScreen()),
+      );
+    }
+  }
 }
 
-// ✅ Modern Styled Home Content Screen
 class HomeContentScreen extends StatelessWidget {
+  final bool isDarkMode;
+
+  HomeContentScreen({this.isDarkMode = false});
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.black, Colors.grey.shade900],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+      color: isDarkMode ? Colors.black : Colors.white,
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Welcome to Royal Caps",
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: isDarkMode ? Colors.white : Colors.black,
+            ),
+          ),
+          SizedBox(height: 10),
+          Row(
             children: [
-              Image.asset(
-                'lib/assets/images/home2.jpg', // Replace with your logo
-                width: 180,
-                height: 180,
-              ),
-              SizedBox(height: 20),
               Text(
-                'Welcome to Royal Caps!',
+                "Suggestions for you",
                 style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 1.2,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: isDarkMode ? Colors.white70 : Colors.black54,
                 ),
-                textAlign: TextAlign.center,
               ),
-              SizedBox(height: 15),
+              Spacer(),
               Text(
-                'Discover the best caps for every occasion. Browse our exclusive collections and find the perfect fit for your style.',
-                style: TextStyle(fontSize: 16, color: Colors.white70),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ProductScreen()),
-                  );
-                },
-                child: Text('Shop Now', style: TextStyle(fontSize: 18)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => CartScreen()),
-                  );
-                },
-                child: Text('Go to Cart', style: TextStyle(fontSize: 18)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                "Near You",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: isDarkMode ? Colors.white70 : Colors.black54,
                 ),
               ),
             ],
           ),
+          SizedBox(height: 20),
+          Expanded(
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                buildCard(isDarkMode, "Brand New Nike Caps", "Start: \nWhen? February 5, 2025\n09:00 am"),
+                buildCard(isDarkMode, "Brand New Polo, Adidas Caps ", "Start: pettah\nWhen? February 5, 2025\n07:30 am"),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildCard(bool isDarkMode, String title, String details) {
+    return Container(
+      width: 250,
+      margin: EdgeInsets.only(right: 16),
+      decoration: BoxDecoration(
+        color: isDarkMode ? Colors.grey[900] : Colors.grey[300],
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: isDarkMode ? Colors.white : Colors.black,
+              ),
+            ),
+            Spacer(),
+            Text(
+              details,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDarkMode ? Colors.white70 : Colors.black87,
+              ),
+            ),
+          ],
         ),
       ),
     );

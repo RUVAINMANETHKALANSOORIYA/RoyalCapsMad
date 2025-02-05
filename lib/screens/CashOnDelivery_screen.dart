@@ -84,6 +84,8 @@ class _CashOnDeliveryScreenState extends State<CashOnDeliveryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Cash on Delivery'),
+        centerTitle: true,
+          backgroundColor: Colors.green.shade300,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
